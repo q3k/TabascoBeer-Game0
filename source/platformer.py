@@ -1,10 +1,19 @@
-{"STACK: MAIN MENU": {
-    "EVENT TYPE": {
-        EventInstance: [listeners]
+"""
+Stacks are used for house-keeping. Nothing more.
+Event-callback bonds need only be recorded in _event_bindings to work.
+
+_event_stacks = {MAIN MENU: {
+    EVENT TYPE: {
+        Event: [(callback, args, kwargs), ...]
         }
     }
 }
+_event_bindings = {EVENT TYPE: {
+    Event: [(callback, args, kwargs), ...]
+    }
+}
 
+"""
 
 class EventListener(object):
     _active_stack = None
@@ -21,14 +30,20 @@ class EventListener(object):
             for event_type in _event_stack:
                 pass
     
-    def event_listen(self, event):
+    def event_listen(self, event, callback, *args, **kwargs):
         if self._active_stack:
             if event.type in self._active_stack:
                 self._active_stack[event.type].append(event)
+            else:
+                self._active_stack[event.type] = [event]
+    
+    def event_unlisten(self, event, callback):
+       pass #TODO
     
     def event_emit(self, event):
         if event.type in self._event_bindings:
-            for event_prototype in self._event_bindings
+            for event_prototype in self._event_bindings:
+                if event._respects_pattern_of(event_prototype)
 
 class Event:
     def _respects_pattern_of(self, event):
