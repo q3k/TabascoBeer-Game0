@@ -12,7 +12,8 @@ class EventListener(object):
     _event_bindings = {}
     
     def add_stack(self, name):
-        _event_stack[name] = {}
+        self._active_stack = {}
+        self._event_stack[name] = self._active_stack
     
     def remove_stack(self, name):
         if name in _event_stack:
@@ -21,10 +22,13 @@ class EventListener(object):
                 pass
     
     def event_listen(self, event):
-        
+        if self._active_stack:
+            if event.type in self._active_stack:
+                self._active_stack[event.type].append(event)
     
     def event_emit(self, event):
-        if event.name in _event_bindings
+        if event.type in self._event_bindings:
+            for event_prototype in self._event_bindings
 
 class Event:
     def _respects_pattern_of(self, event):
@@ -32,13 +36,18 @@ class Event:
         return True
 
 class KeyPress(Event):
-    name = "KeyPress"
-    def __init__(self, key):
-        
+    type = "KeyPress"
+    
+    def __init__(self, key, modifiers=[]):
+        self.key = key
+        self.modifiers = modifiers
+    
+    def _respects_pattern_of(self, event):
+        pass #TODO
 
 class MousePress(Event):
     def __init__(self, button):
-        
+        pass
 
 
 class Windowing:
