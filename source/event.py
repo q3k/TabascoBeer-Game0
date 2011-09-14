@@ -55,7 +55,7 @@ class EventHandler(object):
             for event_prototype in EventHandler._event_bindings[event._type]:
                 if event._respects_pattern_of(event_prototype):
                     for callback, args, kwargs in EventHandler._event_bindings[event._type][event_prototype]:
-                        callback(args, kwargs)
+                        callback(*args, **kwargs)
 
 class Event:
     _type = None
