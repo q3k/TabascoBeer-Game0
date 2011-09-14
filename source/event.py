@@ -17,44 +17,45 @@ class EventHandler(object):
     _event_bindings = {}
     
     def add_stack(self, name):
-        self._active_stack = {}
-        self._event_stacks[name] = self._active_stack
+        EventHandler._active_stack = {}
+        EventHandler._event_stacks[name] = EventHandler._active_stack
     
     def remove_stack(self, name):
-        if name in self._event_stacks:
-            for event in self._event_stacks[name]:
-                for callback in self._event_stacks[name][event]:
+        if name in EventHandler._event_stacks:
+            for event in EventHandler._event_stacks[name]:
+                for callback in EventHandler._event_stacks[name][event]:
                     self.event_unlisten(event, callback)
-            del(self._event_stacks[name])
-        self._active_stack = None
+            del(EventHandler._event_stacks[name])
+        EventHandler._active_stack = None
     
     def event_listen(self, event, callback, *args, **kwargs):
-        if not event._type in self._event_bindings:
-            self._event_bindings[event._type] = {}
-        if not event in self._event_bindings[event._type]:
-            self._event_bindings[event._type][event] = []
-        self._event_bindings[event._type][event].append((callback, args, kwargs))
+        if not event._type in EventHandler._event_bindings:
+            EventHandler._event_bindings[event._type] = {}
+        if not event in EventHandler._event_bindings[event._type]:
+            EventHandler._event_bindings[event._type][event] = []
+        EventHandler._event_bindings[event._type][event].append((callback, args, kwargs))
         
-        if self._active_stack is not None:
-            if not event in self._active_stack:
-                self._active_stack[event] = []
-            self._active_stack[event].append(callback)
+        if EventHandler._active_stack is not None:
+            if not event in EventHandler._active_stack:
+                EventHandler._active_stack[event] = []
+            EventHandler._active_stack[event].append(callback)
     
     def event_unlisten(self, event, callback):
-       if event._type in self._event_bindings:
-           if event in self._event_bindings[event._type]:
+       if event._type in EventHandler._event_bindings:
+           if event in EventHandler._event_bindings[event._type]:
                removal_queue = []
-               for callback2 in self._event_bindings[event._type][event]:
+               for callback2 in EventHandler._event_bindings[event._type][event]:
                    if callback2[0] == callback:
                        removal_queue.append(callback2)
                for callback2 in removal_queue:
-                   self._event_bindings[event._type][event].remove(callback2)
+                   EventHandler._event_bindings[event._type][event].remove(callback2)
     
     def event_emit(self, event):
-        if event._type in self._event_bindings:
-            for event_prototype in self._event_bindings:
+        if event._type in EventHandler._event_bindings:
+            for event_prototype in EventHandler._event_bindings[event._type]:
                 if event._respects_pattern_of(event_prototype):
-                    pass #TODO
+                    for callback, args, kwargs in EventHandler._event_bindings[event._type][event_prototype]:
+                        callback(args, kwargs)
 
 class Event:
     _type = None
@@ -70,9 +71,9 @@ class Event:
 
 if __name__ == '__main__':
     anus = EventHandler()
-    anus2 = EventHandler()
     gay = Event()
-    throb = lambda: None
+    def throb(*args, **kwargs):
+        print "throbbcock gayfarer", args, kwargs
     
     print "Testing event listening"
     anus.event_listen(gay, throb)
@@ -92,6 +93,15 @@ if __name__ == '__main__':
     anus.remove_stack('Giovanna')
     print anus._event_stacks
     
+    anus2 = EventHandler()
+    anus3 = EventHandler()
+    
     print "Testing multiple event handlers"
-    anus2.event_listen(gay, throb)
+    anus2.event_listen(gay, throb, 69, some=3)
     print anus2._event_bindings
+    anus3.event_listen(gay, throb)
+    anus3.event_listen(gay, throb)
+    print anus3._event_bindings
+    
+    print "Testing event emitting"
+    anus.event_emit(gay)
