@@ -27,6 +27,7 @@ class BaseView(object):
         self.position = (0, 0)
         self.size = (1, 1)
         self.catch_all_events = False
+        self.pass_events_to_upper = True
         
         # what the hack
         self.__dict__.update(kwargs)
@@ -53,6 +54,8 @@ class BaseView(object):
         if hasattr(event, "affects_view"):
             if event.affects_view(self):
                 self.process_event(event)
+            elif self.pass_events_to_upper and self.upper_view:
+                self.upper_view.process_event_unfiltered(event)
         else:
             self.process_event(event)
     
@@ -83,6 +86,10 @@ class ViewController(object):
         if len(self._stack) > 1:
             view.upper_view = self._stack[-2]
     
+    def pop(self):
+        self.top.upper_view = None        
+        self._stack.pop()
+    
     def draw(self):
         self.top.draw()
     
@@ -109,19 +116,32 @@ if __name__ == "__main__":
     
     class DebugView(BaseView):
         def draw(self):
-            print "DRAWING"
+            print "%s: DRAWING" % str(self)
         
         def process_event(self, event):
-            print "THIS HAPPENED: %s" % str(event)
+            print "%s: THIS HAPPENED: %s" % (str(self), str(event))
+        
+        def __str__(self):
+            return "DebugView %04i,%04i %04i,%04i @%08x" % (self.position[0],
+                                                            self.position[1],
+                                                            self.size[0],
+                                                            self.size[1],
+                                                            id(self))
     
-    bv = DebugView(position=(0, 0), size=(800, 600))
-    vc.push(bv)
+    dv0 = DebugView(position=(0, 0), size=(800, 600))
+    vc.push(dv0)
     
     vc.draw()
     
     from windowing import MouseMove
     mm0 = MouseMove(10, 10)
     mm1 = MouseMove(1000, 1000)
+    
+    vc.process_event(mm0)
+    vc.process_event(mm1)
+    
+    dv1 = DebugView(position=(500, 500), size=(1000, 1000))
+    vc.push(dv1)
     
     vc.process_event(mm0)
     vc.process_event(mm1)
