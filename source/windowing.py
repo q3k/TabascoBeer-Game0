@@ -1,5 +1,6 @@
 import pyglet
 
+from view import ViewLimitedEvent
 from event import Event, EventHandler
 
 class Windowing(EventHandler):
@@ -22,6 +23,18 @@ class KeyPress(Event):
     def _respects_pattern_of(self, event):
         pass #TODO
 
-class MousePress(Event):
-    def __init__(self, button):
-        pass
+class MousePress(Event, ViewLimitedEvent):
+    type = "MousePress"
+    def __init__(self, x, y, button):
+        self.x = x
+        self.y = y
+        self.button = button
+
+class MouseMove(Event, ViewLimitedEvent):
+    type = "MouseMove"
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __str__(self):
+        return "Mouse Move to %i, %i" % (self.x, self.y)
