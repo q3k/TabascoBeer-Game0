@@ -41,14 +41,14 @@ class EventHandler(object):
             EventHandler._active_stack[event].append(callback)
     
     def event_unlisten(self, event, callback):
-       if event._type in EventHandler._event_bindings:
-           if event in EventHandler._event_bindings[event._type]:
-               removal_queue = []
-               for callback2 in EventHandler._event_bindings[event._type][event]:
-                   if callback2[0] == callback:
-                       removal_queue.append(callback2)
-               for callback2 in removal_queue:
-                   EventHandler._event_bindings[event._type][event].remove(callback2)
+        if event._type in EventHandler._event_bindings:
+            if event in EventHandler._event_bindings[event._type]:
+                removal_queue = []
+                for callback2 in EventHandler._event_bindings[event._type][event]:
+                    if callback2[0] == callback:
+                        removal_queue.append(callback2)
+                for callback2 in removal_queue:
+                    EventHandler._event_bindings[event._type][event].remove(callback2)
     
     def event_emit(self, event):
         if event._type in EventHandler._event_bindings:
